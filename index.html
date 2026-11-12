@@ -106,6 +106,45 @@
   .award-title{font-size:20px}
 }
 
+
+/* Compact mobile first view; ceremony times, filters and controls remain available. */
+@media(max-width:750px){
+  html{scroll-padding-top:62px}
+  .site-header,.header-inner{height:54px;min-height:54px}
+  .header-inner{padding:0 14px}
+  .brand{height:52px;gap:7px}
+  .brand-icon{width:38px;height:38px}
+  .brand-copy{font-size:9px}
+  .brand-copy strong{font-size:18px;margin:2px 0}
+  .mobile-program{padding:6px 9px;font-size:11px}
+  .schedule-section{padding:13px 0 54px}
+  .background-geometry{height:380px;opacity:.30}
+  .section-kicker.center{font-size:9px;letter-spacing:.08em;margin:0 auto 7px}
+  .schedule-heading{font-size:clamp(45px,10.5vw,62px);line-height:.96;margin:5px auto 8px}
+  .schedule-heading .title-prefix,.schedule-heading .hero-break{display:none}
+  .schedule-heading .small-script{font-size:.37em;margin-left:4px}
+  .schedule-lead{display:none}
+  .time-cards{gap:8px;margin:7px auto 13px}
+  .time-cards strong{font-size:20px;margin:0}
+  .time-label{font-size:9px}
+  .time-cards small{display:none}
+  .search-panel{padding:8px}
+  .search-panel label{height:40px}
+  .search-panel input{font-size:13px}
+  .filters{gap:3px;margin-top:6px}
+  .filter{font-size:9px;letter-spacing:.035em;padding:6px 8px}
+  .list-bar{margin:10px auto 5px;gap:3px}
+  .list-bar small{display:none}
+  .expand-actions{gap:5px}
+  .expand-all{font-size:10px;padding:6px 9px}
+  .phase{margin-top:8px;min-height:52px;padding:9px 11px}
+  .phase-name{font-size:23px}
+  .phase-label{font-size:10px}
+  .phase-time{font-size:13px}
+  .award-toggle{padding:12px 8px}
+  .award-title{font-size:19px}
+}
+
 </style>
   
   
@@ -132,7 +171,7 @@
     <div class="background-geometry" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     <div class="container schedule-container">
       <p class="section-kicker center">THE STREAMER AWARDS · NOVEMBER 12, 2026</p>
-      <h1 id="schedule-title" class="gold-title schedule-heading">THE AWARDS<br>PROGRAM <span class="small-script">2026</span></h1>
+      <h1 id="schedule-title" class="gold-title schedule-heading"><span class="title-prefix">THE AWARDS</span><br class="hero-break">PROGRAM <span class="small-script">2026</span></h1>
       <p class="schedule-lead">Pełna kolejność nagród i prezenterów. Nominowani są domyślnie ukryci — rozwiń wybraną kategorię lub wszystkie naraz.</p>
       <div class="time-cards" aria-label="Godziny rozpoczęcia w Polsce">
         <div><span class="time-label">RED CARPET</span><strong>12 NOV <em>23:30</em></strong><small>czwartek · CET</small></div>
@@ -670,9 +709,15 @@ const allAwards = agenda.flatMap(phase=>phase.items.filter(Array.isArray).map((i
 const serial = Object.fromEntries(allAwards.map((award, index) => [award.name, index + 1]));
 const state = { filter: 'all', query: '', expanded: new Set() };
 const officialAssetsBase = 'https://thestreamerawards.com/assets/2026/nominees/';
+const optimizedAssetsBase = './assets/nominees/';
 const photoKey = value => normalize(value).replace(/[^a-z0-9]/g, '');
 
 function photoFor(name) {
+  const file = OFFICIAL_PHOTOS[photoKey(name)];
+  // Small local WebP thumbnails replace original full-size JPEG downloads.
+  return file ? optimizedAssetsBase + encodeURIComponent(file.replace(/\.jpe?g$/i, '.webp')) : null;
+}
+function originalPhotoFor(name) {
   const file = OFFICIAL_PHOTOS[photoKey(name)];
   return file ? officialAssetsBase + encodeURIComponent(file) : null;
 }
@@ -694,14 +739,24 @@ const photoObserver = 'IntersectionObserver' in window ? new IntersectionObserve
 function makePortrait(name) {
   const initials = String(name).trim().split(/\s+/).map(x => x[0] || '').slice(0, 2).join('').toUpperCase();
   const src = photoFor(name);
+  const original = originalPhotoFor(name);
   const picture = src
-    ? `<img data-src="${escapeHtml(src)}" loading="lazy" decoding="async" fetchpriority="low" width="320" height="400" alt="${escapeHtml(name)}">`
+    ? `<img data-src="${escapeHtml(src)}" data-original-src="${escapeHtml(original)}" loading="lazy" decoding="async" fetchpriority="low" width="480" height="640" alt="${escapeHtml(name)}">`
     : '';
   return `<div class="portrait-card" role="listitem"><div class="portrait-visual"><div class="portrait-placeholder" aria-hidden="true">${escapeHtml(initials)}</div>${picture}</div><div class="portrait-name">${escapeHtml(name)}</div></div>`;
 }
 
 function setupImages(root) {
   for (const img of root.querySelectorAll('img[data-src]')) {
+    // If an optimized file is missing, load the official original as fallback.
+    img.addEventListener('error', () => {
+      if (!img.dataset.fallbackTried && img.dataset.originalSrc) {
+        img.dataset.fallbackTried = '1';
+        img.src = img.dataset.originalSrc;
+      } else {
+        img.classList.add('image-error');
+      }
+    });
     if (photoObserver) photoObserver.observe(img);
     else { img.src = img.dataset.src; img.removeAttribute('data-src'); }
   }
