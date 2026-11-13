@@ -8,7 +8,7 @@
   <meta property="og:title" content="The Streamer Awards 2026 — Harmonogram">
   <meta property="og:description" content="37 kategorii w kolejności ceremonii, zwycięzcy, prezenterzy i nominowani.">
   <title>The Streamer Awards 2026 — Harmonogram</title>
-  <!-- W domyślnym widoku nie pobieramy żadnych fotografii. Dopiero po otwarciu kategorii. -->
+  <!-- Zdjęcia nagród specjalnych ładują się przy przewijaniu, pozostałe po otwarciu kategorii. -->
   <link rel="preconnect" href="https://thestreamerawards.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -150,6 +150,14 @@
 .nominee-grid .portrait-card[data-result="not-winner"]{filter:grayscale(1)}
 .nominee-grid .portrait-card[data-result="winner"]{border-color:var(--gold)}
 .portrait-result{position:absolute;z-index:2;top:6px;left:6px;max-width:calc(100% - 12px);padding:3px 6px;background:#0e1826;color:var(--gold);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.special-winner{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:8px;flex:0 0 160px;padding:5px 8px 5px 5px;border:1px solid #a38335;background:#102137;min-width:0}
+.special-winner .portrait-visual{aspect-ratio:1;border-radius:2px}
+.special-winner .portrait-visual:before{content:none}
+.special-winner .portrait-placeholder{font:600 17px var(--sans);color:var(--gold)}
+.special-winner .portrait-visual img{object-position:center 30%}
+.special-winner-label{display:block;color:var(--gold);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.special-winner-name{display:block;color:var(--text);font-size:14px;font-weight:700;line-height:1.15;overflow-wrap:anywhere}
+@media(max-width:550px){.special-row--winner{gap:8px;padding:14px 8px}.special-row--winner .special-title{font-size:18px;letter-spacing:.04em;overflow-wrap:anywhere}.special-winner{flex-basis:119px;grid-template-columns:34px minmax(0,1fr);gap:5px;padding:4px}.special-winner-name{font-size:11px}.special-winner-label{font-size:9px}}
 </style>
   
   
@@ -757,11 +765,16 @@ const normalize = value => String(value).toLocaleLowerCase('pl-PL').normalize('N
 const $ = selector => document.querySelector(selector);
 const allAwards = agenda.flatMap(phase=>phase.items.filter(Array.isArray).map((item)=>({name:item[0], host:item[1]||'',phase}))); 
 // Identyczna kolejność kategorii jak na oficjalnej stronie /nominees.
-// Widok harmonogramu. Żadne zdjęcie nie jest pobierane przed rozwinięciem nominacji.
+// Zdjęcia nominowanych są tworzone dopiero po rozwinięciu kategorii.
 const serial = Object.fromEntries(allAwards.map((award, index) => [award.name, index + 1]));
 const state = { filter: 'all', query: '', expanded: new Set() };
 const officialAssetsBase = 'https://thestreamerawards.com/assets/2026/nominees/';
 const optimizedAssetsBase = './assets/nominees/';
+// Twitch profile images for special winners not included in the official nominee portraits.
+const specialWinnerAvatars = {
+  hmblzayy: 'https://static-cdn.jtvnw.net/jtv_user_pictures/61c37bab-e7ec-4b2a-bd1b-9bc3d25c50c2-profile_image-300x300.png',
+  quackity: 'https://static-cdn.jtvnw.net/jtv_user_pictures/4c2864d1-2739-4e10-ac60-7f74f30feef4-profile_image-300x300.png'
+};
 const photoKey = value => normalize(value).replace(/[^a-z0-9]/g, '');
 
 function photoFor(name) {
@@ -854,11 +867,20 @@ function awardHtml([name, host]) {
   </article>`;
 }
 
+function specialWinnerHtml(winner) {
+  const initials = winner.split(/\s+/).map(word => word[0]).slice(0, 2).join('').toUpperCase();
+  const src = photoFor(winner) || specialWinnerAvatars[photoKey(winner)];
+  const original = originalPhotoFor(winner);
+  const picture = src ? `<img data-src="${escapeHtml(src)}"${original ? ` data-original-src="${escapeHtml(original)}"` : ''} loading="lazy" decoding="async" width="44" height="44" alt="">` : '';
+  return `<div class="special-winner"><div class="portrait-visual" aria-hidden="true"><span class="portrait-placeholder">${escapeHtml(initials)}</span>${picture}</div><div><span class="special-winner-label">Wygrana</span><strong class="special-winner-name">${escapeHtml(winner)}</strong></div></div>`;
+}
+
 function specialHtml(item) {
   const music = item.type === 'performance';
-  return `<article class="special-row"><span class="special-symbol" aria-hidden="true">${music ? '♫' : '◇'}</span>
-    <div class="special-body"><div class="special-title">${escapeHtml(item.title)}</div><div class="special-sub">${item.presenter ? 'PRESENTED BY ' + escapeHtml(item.presenter) : music ? 'LIVE MUSIC PERFORMANCE' : 'SPECIAL AWARD · BEZ LISTY NOMINACJI'}</div>${music ? '' : winnerHtml(winnerFor(item.title))}</div>
-    <div class="special-tag">${music ? 'LIVE' : 'SPECIAL'}</div>
+  const winner = music ? null : winnerFor(item.title);
+  return `<article class="special-row${winner ? ' special-row--winner' : ''}"><span class="special-symbol" aria-hidden="true">${music ? '♫' : '◇'}</span>
+    <div class="special-body"><div class="special-title">${escapeHtml(item.title)}</div><div class="special-sub">${item.presenter ? 'PRESENTED BY ' + escapeHtml(item.presenter) : music ? 'LIVE MUSIC PERFORMANCE' : 'SPECIAL AWARD · BEZ LISTY NOMINACJI'}</div></div>
+    ${winner ? specialWinnerHtml(winner) : `<div class="special-tag">${music ? 'LIVE' : 'SPECIAL'}</div>`}
   </article>`;
 }
 
@@ -905,7 +927,10 @@ function render() {
     return `<div class="phase" role="heading" aria-level="3"><div><div class="phase-name">${escapeHtml(phase.label)}</div><div class="phase-label">${escapeHtml(phase.pl)}</div></div><div class="phase-time">${escapeHtml(phase.time)}<small>POCZĄTEK CZĘŚCI</small></div></div>`
       + items.map(item => Array.isArray(item) ? awardHtml(item) : specialHtml(item)).join('');
   }).join('');
-  $('#program-list').innerHTML = html;
+  const program = $('#program-list');
+  discardImages(program);
+  program.innerHTML = html;
+  setupImages(program);
   // Reopen only the explicitly expanded categories, without eager images.
   visibleArticles().filter(row => state.expanded.has(row.dataset.award)).forEach(row => setAwardOpen(row, true));
   $('#result-count').textContent = `${awardCount} KATEGORII · ${total - awardCount} SEGMENTÓW DODATKOWYCH`;
@@ -929,9 +954,6 @@ $('#collapse-all').addEventListener('click', () => {
   visibleArticles().forEach(article => setAwardOpen(article, false));
   updateGlobalControls();
 });
-$('#program-list').addEventListener('error', event => {
-  if (event.target instanceof HTMLImageElement) event.target.classList.add('image-error');
-}, true);
 $('#search').addEventListener('input', event => {
   state.query = normalize(event.target.value.trim());
   render();
