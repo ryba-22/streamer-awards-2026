@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0e1826">
-  <meta name="description" content="Nieoficjalny harmonogram The Streamer Awards 2026 — pełna kolejność kategorii i nominowani na żądanie.">
+  <meta name="description" content="Nieoficjalny harmonogram The Streamer Awards 2026 — pełna kolejność kategorii, zwycięzcy i nominowani.">
   <meta property="og:title" content="The Streamer Awards 2026 — Harmonogram">
-  <meta property="og:description" content="37 kategorii w kolejności ceremonii, prezenterzy i nominowani. Sprawdź program.">
+  <meta property="og:description" content="37 kategorii w kolejności ceremonii, zwycięzcy, prezenterzy i nominowani.">
   <title>The Streamer Awards 2026 — Harmonogram</title>
   <!-- W domyślnym widoku nie pobieramy żadnych fotografii. Dopiero po otwarciu kategorii. -->
   <link rel="preconnect" href="https://thestreamerawards.com" crossorigin>
@@ -145,6 +145,11 @@
   .award-title{font-size:19px}
 }
 
+.award-winner{display:block;margin-top:5px;color:var(--gold);font-size:13px;font-weight:700;overflow-wrap:anywhere}
+.winner-label{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;margin-inline-end:.4em}
+.nominee-grid .portrait-card[data-result="not-winner"]{filter:grayscale(1)}
+.nominee-grid .portrait-card[data-result="winner"]{border-color:var(--gold)}
+.portrait-result{position:absolute;z-index:2;top:6px;left:6px;max-width:calc(100% - 12px);padding:3px 6px;background:#0e1826;color:var(--gold);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
 </style>
   
   
@@ -172,7 +177,7 @@
     <div class="container schedule-container">
       <p class="section-kicker center">THE STREAMER AWARDS · NOVEMBER 12, 2026</p>
       <h1 id="schedule-title" class="gold-title schedule-heading"><span class="title-prefix">THE AWARDS</span><br class="hero-break">PROGRAM <span class="small-script">2026</span></h1>
-      <p class="schedule-lead">Pełna kolejność nagród i prezenterów. Nominowani są domyślnie ukryci — rozwiń wybraną kategorię lub wszystkie naraz.</p>
+      <p class="schedule-lead">Zwycięzców zobaczysz od razu w harmonogramie. Rozwiń kategorię, żeby zobaczyć ich kolorowe zdjęcia i wyszarzone karty pozostałych nominowanych.</p>
       <div class="time-cards" aria-label="Godziny rozpoczęcia w Polsce">
         <div><span class="time-label">RED CARPET</span><strong>12 NOV <em>23:30</em></strong><small>czwartek · CET</small></div>
         <span class="time-diamond" aria-hidden="true">◆</span>
@@ -196,7 +201,7 @@
       </div>
       <div id="program-list" class="schedule-list" aria-label="Pełny program The Streamer Awards 2026"></div>
       <div id="no-results" class="no-results" hidden>Nie znaleziono pasujących kategorii. <button type="button" id="clear-search">WYCZYŚĆ FILTRY</button></div>
-      <p class="schedule-disclaimer">Podane godziny dotyczą rozpoczęcia części wydarzenia, nie poszczególnych nagród. Nieoficjalny harmonogram na podstawie programu wydarzenia.</p>
+      <p class="schedule-disclaimer">Podane godziny dotyczą rozpoczęcia części wydarzenia, nie poszczególnych nagród. Nieoficjalny harmonogram na podstawie programu wydarzenia. Wyniki według <a href="https://x.com/StreamerAwards" target="_blank" rel="noopener noreferrer">komunikatów organizatora na X</a> i <a href="https://en.wikipedia.org/wiki/2026_Streamer_Awards#Winners_and_nominees" target="_blank" rel="noopener noreferrer">zestawienia gali</a>.</p>
     </div>
   </section>
 </main>
@@ -447,7 +452,7 @@ const nominees = {
     "DiazBiffle"
   ],
   "Best International Streamer": [
-    "Ashwag",
+    "ashswag",
     "Carterefe",
     "Peller",
     "Young Multi",
@@ -507,7 +512,7 @@ const nominees = {
   "Best Cozy Game Streamer": [
     "Lilimsie",
     "Gab Smolders",
-    "MillBerry",
+    "millkberry",
     "GeminiTay"
   ],
   "Best MOBA Streamer": [
@@ -646,6 +651,53 @@ const nominees = {
   ]
 };
 
+// Exact nominee labels, scoped to each award. No result means no grayscale.
+// Sources: official @StreamerAwards announcements and the full 2026 ceremony results.
+const winners = {
+  "Best Brand Partner": "Red Bull",
+  "Stream Game of the Year": "Meccha Chameleon",
+  "Best MMORPG Streamer": "Savix",
+  "Best VTuber": "Ironmouse",
+  "Best FPS Streamer": "OhnePixel",
+  "Best Fighting Game Streamer": "PhiDX",
+  "Best Battle Royale Streamer": "NiceWigg",
+  "Best International Streamer": "ashswag",
+  "Best Strategy Game Streamer": "Jillyeon",
+  "Best Creative Streamer": "BarleyTheBurr",
+  "Best Speedrun Streamer": "Feinberg",
+  "Best Streamed Series": "World Cup Tour — IShowSpeed",
+  "Best Role-Play Streamer": "Critical Role",
+  "Best Sports Streamer": "flight23white",
+  "Hidden Gem Award": "SmallFryz",
+  "Best Content Group": "CORE (TheCoreBoys)",
+  "Best Cozy Game Streamer": "millkberry",
+  "Best MOBA Streamer": "Dantes",
+  "Best Vertical Live Streamer": "Dean Withers",
+  "Best Streamer Collab": "Maya Higa × Adapt",
+  "Best Minecraft Streamer": "Katie B",
+  "Best Variety Streamer": "CaseOh",
+  "The Morgan & Morgan Streamer Award for Biggest Crashout": "Lacy",
+  "Best Marathon Stream": "Chained Together — Stable Ronaldo, Jynxzi & LosPollosTV",
+  "Best Fortnite Streamer": "Clix",
+  "President of Chat": "Joe Bartolozzi",
+  "Best Streamed Event": "Streamer University — Kai Cenat",
+  "Best Music Streamer": "AriAtHome",
+  "The Spark Award": "HMBLZAYY",
+  "Best IRL Streamer": "IShowSpeed",
+  "Best Reality Streamer": "Stable Ronaldo",
+  "League of Their Own": "Kai Cenat",
+  "Rising Star Award": "E11ysa",
+  "Best Stream Duo": "Katie B & Vanillamace",
+  "Best Dressed Award": "Vanillamace",
+  "Streamer Choice Award": "supertf",
+  "Best Breakout Streamer": "Katie B",
+  "Best Mainstream Collab": "Kai Cenat × Tyla",
+  "Legacy Award": "Quackity",
+  "Gamer of the Year": "Jynxzi",
+  "The Sapphire Award": "Vanillamace",
+  "Streamer of the Year": "IShowSpeed"
+};
+
 const carpet = [
   ['Best Brand Partner'],
   ['Stream Game of the Year'],
@@ -736,14 +788,16 @@ const photoObserver = 'IntersectionObserver' in window ? new IntersectionObserve
   }
 }, { rootMargin: '650px 0px' }) : null;
 
-function makePortrait(name) {
+function makePortrait(name, winner) {
   const initials = String(name).trim().split(/\s+/).map(x => x[0] || '').slice(0, 2).join('').toUpperCase();
   const src = photoFor(name);
   const original = originalPhotoFor(name);
   const picture = src
     ? `<img data-src="${escapeHtml(src)}" data-original-src="${escapeHtml(original)}" loading="lazy" decoding="async" fetchpriority="low" width="480" height="640" alt="${escapeHtml(name)}">`
     : '';
-  return `<div class="portrait-card" role="listitem"><div class="portrait-visual"><div class="portrait-placeholder" aria-hidden="true">${escapeHtml(initials)}</div>${picture}</div><div class="portrait-name">${escapeHtml(name)}</div></div>`;
+  const result = !winner ? 'pending' : winner === name ? 'winner' : 'not-winner';
+  const label = result === 'winner' ? '<span class="portrait-result">Wygrana</span>' : '';
+  return `<div class="portrait-card" data-result="${result}" role="listitem"><div class="portrait-visual"><div class="portrait-placeholder" aria-hidden="true">${escapeHtml(initials)}</div>${picture}${label}</div><div class="portrait-name">${escapeHtml(name)}</div></div>`;
 }
 
 function setupImages(root) {
@@ -772,8 +826,17 @@ function matches(item, zone) {
   if (state.filter === 'show' && zone !== 'show') return false;
   if (state.filter === 'extras' && Array.isArray(item)) return false;
   if (!state.query) return true;
-  if (!Array.isArray(item)) return normalize([item.title, item.presenter || ''].join(' ')).includes(state.query);
+  if (!Array.isArray(item)) return normalize([item.title, item.presenter || '', winnerFor(item.title) || ''].join(' ')).includes(state.query);
   return normalize([item[0], item[1] || '', ...(nominees[item[0]] || [])].join(' ')).includes(state.query);
+}
+
+function winnerFor(name) {
+  const winner = Object.hasOwn(winners, name) ? winners[name] : null;
+  return winner && (!nominees[name] || nominees[name].includes(winner)) ? winner : null;
+}
+
+function winnerHtml(winner) {
+  return winner ? `<span class="award-winner"><span class="winner-label">Wygrana</span>${escapeHtml(winner)}</span>` : '';
 }
 
 function awardHtml([name, host]) {
@@ -783,7 +846,7 @@ function awardHtml([name, host]) {
   return `<article class="award-row" data-expanded="${open}" data-award="${escapeHtml(name)}">
     <button type="button" class="award-toggle" data-toggle="${escapeHtml(name)}" aria-expanded="${open}" aria-controls="${id}">
       <span class="award-number">${String(serial[name]).padStart(2, '0')}</span>
-      <span class="award-text"><span class="award-title">${escapeHtml(name)}</span><span class="award-meta">${meta}${name === 'President of Chat' ? ' · BEST JUST CHATTING STREAMER' : ''}</span></span>
+      <span class="award-text"><span class="award-title">${escapeHtml(name)}</span><span class="award-meta">${meta}${name === 'President of Chat' ? ' · BEST JUST CHATTING STREAMER' : ''}</span>${winnerHtml(winnerFor(name))}</span>
       <span class="nominee-count">${nominees[name].length} NOMINACJI</span>
       <span class="chevron" aria-hidden="true">⌄</span>
     </button>
@@ -794,7 +857,7 @@ function awardHtml([name, host]) {
 function specialHtml(item) {
   const music = item.type === 'performance';
   return `<article class="special-row"><span class="special-symbol" aria-hidden="true">${music ? '♫' : '◇'}</span>
-    <div class="special-body"><div class="special-title">${escapeHtml(item.title)}</div><div class="special-sub">${item.presenter ? 'PRESENTED BY ' + escapeHtml(item.presenter) : music ? 'LIVE MUSIC PERFORMANCE' : 'SPECIAL AWARD · BEZ LISTY NOMINACJI'}</div></div>
+    <div class="special-body"><div class="special-title">${escapeHtml(item.title)}</div><div class="special-sub">${item.presenter ? 'PRESENTED BY ' + escapeHtml(item.presenter) : music ? 'LIVE MUSIC PERFORMANCE' : 'SPECIAL AWARD · BEZ LISTY NOMINACJI'}</div>${music ? '' : winnerHtml(winnerFor(item.title))}</div>
     <div class="special-tag">${music ? 'LIVE' : 'SPECIAL'}</div>
   </article>`;
 }
@@ -808,7 +871,8 @@ function setAwardOpen(article, open) {
   if (open) {
     if (!state.expanded.has(name)) state.expanded.add(name);
     if (!panel.hasChildNodes()) {
-      panel.innerHTML = `<p class="nominees-label">NOMINOWANI · ${nominees[name].length}</p><div class="nominee-grid" role="list">${nominees[name].map(makePortrait).join('')}</div>`;
+      const winner = winnerFor(name);
+      panel.innerHTML = `<p class="nominees-label">NOMINOWANI · ${nominees[name].length}</p><div class="nominee-grid" role="list">${nominees[name].map(nominee => makePortrait(nominee, winner)).join('')}</div>`;
       setupImages(panel);
     }
     panel.hidden = false;
